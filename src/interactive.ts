@@ -1,3 +1,4 @@
+import { select, input, Separator } from '@inquirer/prompts'
 import { isAddress, getAddress } from 'viem'
 import { c } from './output/colors.js'
 import { CHAINS } from './core/rpc.js'
@@ -12,11 +13,8 @@ import { runExport } from './commands/export.js'
 import type { Config } from './types.js'
 
 async function askAction(): Promise<string> {
-  const { default: inquirer } = await import('inquirer')
-  const { action } = await inquirer.prompt([{
-    type: 'list',
-    name: 'action',
-    message: c.bold('What do you want to do?'),
+  return select({
+    message: 'What do you want to do?',
     choices: [
       { name: 'inspect         full fingerprint', value: 'inspect' },
       { name: 'proxy           proxy chain + upgrade history', value: 'proxy' },
@@ -26,57 +24,56 @@ async function askAction(): Promise<string> {
       { name: 'storage         read a storage slot or variable', value: 'storage' },
       { name: 'watch           live event stream', value: 'watch' },
       { name: 'export          export to foundry | abi | json', value: 'export' },
-      new inquirer.Separator(),
+      new Separator(),
       { name: 'exit', value: 'exit' },
     ],
     pageSize: 12,
-  }])
-  return action as string
+  })
 }
 
 async function askAddress(): Promise<string> {
-  const { default: inquirer } = await import('inquirer')
-  const { raw } = await inquirer.prompt([{
-    type: 'input',
-    name: 'raw',
-    message: c.muted('EVM address:'),
-    validate: (v: string) => isAddress(v.trim()) ? true : c.danger('Enter a valid EVM address (0x...)'),
-  }])
-  return getAddress((raw as string).trim())
+  const raw = await input({
+    message: 'EVM address:',
+    validate: (v: string) => isAddress(v.trim()) ? true : 'Enter a valid EVM address (0x...)',
+  })
+  return getAddress(raw.trim())
 }
 
 async function askChain(config: Config): Promise<string> {
-  const { default: inquirer } = await import('inquirer')
-  const defaultChain = config.defaultChain ?? 'mainnet'
-  const { chain } = await inquirer.prompt([{
-    type: 'list',
-    name: 'chain',
-    message: c.muted('Chain:'),
-    choices: Object.keys(CHAINS),
-    default: defaultChain,
+  return select({
+    message: 'Chain:',
+    choices: Object.keys(CHAINS).map(name => ({ name, value: name })),
+    default: config.defaultChain ?? 'mainnet',
     pageSize: 10,
-  }])
-  return chain as string
+  })
 }
 
 async function askExtra(action: string): Promise<string> {
-  const prompts: Record<string, string> = {
-    read:    'Function call (e.g. balanceOf(0x...)):',
-    storage: 'Slot, variable name, or mapping (e.g. balanceOf[0x...]):',
-    watch:   'Event name (or "all"):',
-    export:  'Format (foundry | abi | json):',
+  const prompts: Record<string, { message: string; default?: string }> = {
+    read:    { message: 'Function call (e.g. balanceOf(0x...)):' },
+    storage: { message: 'Slot, variable name, or mapping (e.g. balanceOf[0x...]):' },
+    watch:   { message: 'Event name (or "all"):', default: 'all' },
+    export:  { message: 'Format:', default: 'foundry' },
   }
-  const message = prompts[action]
-  if (!message) return ''
-  const { default: inquirer } = await import('inquirer')
-  const { value } = await inquirer.prompt([{
-    type: 'input',
-    name: 'value',
-    message: c.muted(message),
-    default: action === 'watch' ? 'all' : action === 'export' ? 'foundry' : undefined,
+  const cfg = prompts[action]
+  if (!cfg) return ''
+  const value = await input({
+    message: cfg.message,
+    default: cfg.default,
     validate: (v: string) => v.trim().length > 0 ? true : 'Required',
-  }])
-  return (value as string).trim()
+  })
+  return value.trim()
+}
+
+async function askContinue(): Promise<'new' | 'same' | 'exit'> {
+  return select({
+    message: 'What next?',
+    choices: [
+      { name: 'do something else with this contract', value: 'same' },
+      { name: 'inspect a different contract', value: 'new' },
+      { name: 'exit', value: 'exit' },
+    ],
+  }) as Promise<'new' | 'same' | 'exit'>
 }
 
 async function runAction(
@@ -98,21 +95,6 @@ async function runAction(
     case 'watch':    return runWatch(address, extra, chain, config, rpc)
     case 'export':   return runExport(address, extra, chain, config)
   }
-}
-
-async function askContinue(): Promise<'new' | 'same' | 'exit'> {
-  const { default: inquirer } = await import('inquirer')
-  const { next } = await inquirer.prompt([{
-    type: 'list',
-    name: 'next',
-    message: c.muted('What next?'),
-    choices: [
-      { name: 'do something else with this contract', value: 'same' },
-      { name: 'inspect a different contract', value: 'new' },
-      { name: 'exit', value: 'exit' },
-    ],
-  }])
-  return next as 'new' | 'same' | 'exit'
 }
 
 export async function runInteractive(config: Config): Promise<void> {
@@ -149,7 +131,6 @@ export async function runInteractive(config: Config): Promise<void> {
   console.log(`\n  ${c.muted('bye.')}\n`)
 }
 
-// Called from inspect after the fingerprint is shown — address already known
 export async function runInteractiveLoop(
   address: string,
   chain: string,
@@ -173,13 +154,11 @@ export async function runInteractiveLoop(
     const next = await askContinue()
     if (next === 'exit') break
     if (next === 'new') {
-      // Hand back to full interactive mode
       const newAddress = await askAddress()
       const newChain = await askChain(config)
       await runInteractiveLoop(newAddress, newChain, config)
       break
     }
-    // 'same' → loop with same address
   }
 
   console.log(`\n  ${c.muted('bye.')}\n`)
