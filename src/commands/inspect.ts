@@ -5,7 +5,6 @@ import { resolveContract } from '../core/resolver.js'
 import { resolveProxyChain } from '../core/proxy-detector.js'
 import { detectStandards } from '../core/standards.js'
 import { printFingerprint } from '../output/fingerprint.js'
-import { showMenu } from '../output/menu.js'
 import { c } from '../output/colors.js'
 import { printEoaInfo } from '../output/eoa.js'
 import type { Config } from '../types.js'
@@ -128,40 +127,9 @@ export async function runInspect(
 
     printFingerprint(contract, proxy, standards, chainConfig.name, balance)
 
-    const action = await showMenu()
-    if (!action || action === 'exit') return
-
-    if (action === 'proxy') return runProxy(address, chainName, config, rpcOverride, jsonOutput)
-    if (action === 'tree') return runTree(address, chainName, config, jsonOutput)
-    if (action === 'security') return runSecurity(address, chainName, config, rpcOverride, jsonOutput)
-    if (action === 'export') return runExport(address, 'foundry', chainName, config, jsonOutput)
-
-    if (action === 'storage' || action === 'watch' || action === 'read') {
-      const { default: inquirer } = await import('inquirer')
-      const answer = await inquirer.prompt([{
-        type: 'input',
-        name: 'value',
-        message: action === 'storage'
-          ? 'Storage slot/name/mapping:'
-          : action === 'watch'
-            ? 'Event name (or all):'
-            : 'View call:',
-        default: action === 'watch' ? 'all' : undefined,
-      }])
-      const value = String(answer.value || '').trim()
-      if (!value) return
-      if (action === 'storage') return runStorage(address, value, chainName, config, rpcOverride, jsonOutput)
-      if (action === 'watch') return runWatch(address, value, chainName, config, rpcOverride)
-      return runRead(address, value, chainName, config, rpcOverride, jsonOutput)
-    }
-
-    if (action === 'etherscan') {
-      const baseUrl = chainConfig.explorerApiUrl.replace('/api', '')
-      console.log(`\n  ${c.address(baseUrl + '/address/' + address)}\n`)
-      return
-    }
-
-    console.log(c.muted(`\n  Run: unfold ${address} --${action}\n`))
+    // Hand off to the interactive loop for this address
+    const { runInteractiveLoop } = await import('../interactive.js')
+    await runInteractiveLoop(address, chainName, config, rpcOverride)
   } catch (err) {
     spinner?.fail()
     const msg = err instanceof Error ? err.message : String(err)

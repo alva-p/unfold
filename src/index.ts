@@ -10,6 +10,7 @@ import { runStorage } from './commands/storage.js'
 import { runTree } from './commands/tree.js'
 import { runWatch } from './commands/watch.js'
 import { loadConfig } from './core/config.js'
+import { runInteractive } from './interactive.js'
 import { c } from './output/colors.js'
 import { CHAINS } from './core/rpc.js'
 
@@ -19,7 +20,7 @@ program
   .name('unfold')
   .description('Unfold any EVM contract in seconds')
   .version('0.1.0')
-  .argument('<address>', 'EVM contract address')
+  .argument('[address]', 'EVM contract address (omit to enter interactive mode)')
   .option('--chain <name>', 'Target chain')
   .option('--rpc <url>', 'Custom RPC URL')
   .option('--json', 'Output as JSON (no banner or interactive menu)')
@@ -30,7 +31,7 @@ program
   .option('--storage <slot>', 'Read a storage slot or variable name')
   .option('--read <call>', 'Call any view function, e.g. balanceOf(0x...)')
   .option('--export <format>', 'Export: foundry | abi | json')
-  .action(async (address: string, options: {
+  .action(async (address: string | undefined, options: {
     chain?: string
     rpc?: string
     json?: boolean
@@ -44,14 +45,16 @@ program
   }) => {
     const isJson = options.json === true
 
-    if (!isJson) {
-      printBanner()
-    }
+    if (!isJson) printBanner()
 
     const config = loadConfig()
-
-    // Override default chain from config
     const chain = options.chain ?? config.defaultChain ?? 'mainnet'
+
+    // No address → full interactive mode
+    if (!address) {
+      await runInteractive(config)
+      return
+    }
 
     if (!CHAINS[chain]) {
       console.error(c.danger(`\n  Unknown chain: "${chain}"`))
@@ -59,40 +62,13 @@ program
       process.exit(1)
     }
 
-    if (options.proxy) {
-      await runProxy(address, chain, config, options.rpc, isJson)
-      return
-    }
-
-    if (options.tree) {
-      await runTree(address, chain, config, isJson)
-      return
-    }
-
-    if (options.security) {
-      await runSecurity(address, chain, config, options.rpc, isJson)
-      return
-    }
-
-    if (options.watch) {
-      await runWatch(address, options.watch, chain, config, options.rpc)
-      return
-    }
-
-    if (options.storage) {
-      await runStorage(address, options.storage, chain, config, options.rpc, isJson)
-      return
-    }
-
-    if (options.read) {
-      await runRead(address, options.read, chain, config, options.rpc, isJson)
-      return
-    }
-
-    if (options.export) {
-      await runExport(address, options.export, chain, config, isJson)
-      return
-    }
+    if (options.proxy)   { await runProxy(address, chain, config, options.rpc, isJson); return }
+    if (options.tree)    { await runTree(address, chain, config, isJson); return }
+    if (options.security){ await runSecurity(address, chain, config, options.rpc, isJson); return }
+    if (options.watch)   { await runWatch(address, options.watch, chain, config, options.rpc); return }
+    if (options.storage) { await runStorage(address, options.storage, chain, config, options.rpc, isJson); return }
+    if (options.read)    { await runRead(address, options.read, chain, config, options.rpc, isJson); return }
+    if (options.export)  { await runExport(address, options.export, chain, config, isJson); return }
 
     await runInspect(address, chain, config, options.rpc, isJson)
   })
@@ -133,7 +109,7 @@ program
         name: 'rpcChains',
         message: 'Chains to configure:',
         choices: Object.keys(CHAINS),
-        when: answers => answers.addRpcOverrides === true,
+        when: (a: Record<string, unknown>) => a.addRpcOverrides === true,
       },
     ])
 
