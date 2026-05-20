@@ -14,10 +14,20 @@
   "scripts": {
     "build": "tsup",
     "typecheck": "tsc --noEmit",
+    "test": "vitest run src/__tests__/standards.test.ts src/__tests__/storage-layout.test.ts src/__tests__/ast-analyzer.test.ts",
+    "test:smoke": "vitest run src/__tests__/smoke.test.ts",
     "dev": "npx ts-node src/index.ts",
     "start": "node dist/index.cjs"
   },
-  "keywords": ["ethereum", "evm", "solidity", "cli", "smart-contracts", "web3", "audit"],
+  "keywords": [
+    "ethereum",
+    "evm",
+    "solidity",
+    "cli",
+    "smart-contracts",
+    "web3",
+    "audit"
+  ],
   "license": "MIT",
   "author": "alva-p",
   "dependencies": {
@@ -34,6 +44,7 @@
     "@types/inquirer": "^9.0.9",
     "@types/node": "^25.9.1",
     "tsup": "^8.5.1",
-    "typescript": "^6.0.3"
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.7"
   }
 }

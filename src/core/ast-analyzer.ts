@@ -15,6 +15,7 @@ function nameOf(value: unknown): string | null {
   if (typeof value === 'object') {
     const node = value as Node
     if (typeof node.name === 'string') return node.name
+    if (typeof node.namePath === 'string') return node.namePath  // UserDefinedTypeName
     if (typeof node.typeName === 'object') return nameOf(node.typeName)
     if (typeof node.baseName === 'object') return nameOf(node.baseName)
   }
