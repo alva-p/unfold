@@ -88,7 +88,6 @@ export async function runProxy(
     }
     console.log()
   } catch (err) {
-    console.error(`\n  ${c.danger('Error:')} ${(err as Error).message}\n`)
-    process.exit(1)
+    throw err
   }
 }
