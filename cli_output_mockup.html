@@ -1,0 +1,169 @@
+
+<h2 class="sr-only">Mockup interactivo del output del CLI — simulación de terminal para el explorador de contratos</h2>
+<style>
+.term { background:#1a1a1a; border-radius:12px; padding:0; overflow:hidden; font-family:var(--font-mono); font-size:13px; line-height:1.7; }
+.term-bar { background:#2a2a2a; padding:10px 16px; display:flex; align-items:center; gap:8px; border-bottom:1px solid #333; }
+.dot { width:12px; height:12px; border-radius:50%; }
+.term-body { padding:20px 24px; color:#e2e2e2; }
+.dim { color:#666; }
+.muted { color:#999; }
+.grn { color:#4ec994; }
+.yel { color:#f5c842; }
+.red { color:#f07070; }
+.blu { color:#7eb8f7; }
+.cyn { color:#56d4d4; }
+.wht { color:#ffffff; font-weight:500; }
+.sec { margin-top:18px; }
+.label { color:#888; font-size:11px; letter-spacing:.06em; text-transform:uppercase; margin-bottom:4px; }
+.tree-line { padding-left:20px; color:#bbb; }
+.tree-child { padding-left:36px; color:#999; }
+.tree-grand { padding-left:52px; color:#777; }
+.badge { display:inline-block; padding:1px 8px; border-radius:4px; font-size:11px; font-weight:500; margin-left:6px; }
+.badge-grn { background:#0f3d25; color:#4ec994; }
+.badge-yel { background:#3d2f00; color:#f5c842; }
+.badge-red { background:#3d1010; color:#f07070; }
+.badge-blu { background:#0d2b4a; color:#7eb8f7; }
+.divider { border:none; border-top:1px solid #2a2a2a; margin:14px 0; }
+.prompt { color:#4ec994; }
+.cursor { display:inline-block; width:8px; height:14px; background:#e2e2e2; vertical-align:-2px; animation:blink 1s step-end infinite; }
+@keyframes blink { 50% { opacity:0; } }
+.tab-row { display:flex; gap:8px; margin-bottom:16px; flex-wrap:wrap; }
+.tab { background:#2a2a2a; border:1px solid #333; color:#999; font-size:12px; padding:5px 14px; border-radius:6px; cursor:pointer; font-family:var(--font-mono); transition:background .15s, color .15s; }
+.tab.active { background:#1d3a2a; border-color:#4ec994; color:#4ec994; }
+.section { display:none; }
+.section.visible { display:block; }
+</style>
+
+<div style="padding:1rem 0">
+  <div class="tab-row">
+    <button class="tab active" onclick="show('fingerprint', this)">fingerprint</button>
+    <button class="tab" onclick="show('proxy', this)">proxy</button>
+    <button class="tab" onclick="show('inheritance', this)">inheritance</button>
+    <button class="tab" onclick="show('security', this)">security</button>
+    <button class="tab" onclick="show('menu', this)">interactive menu</button>
+  </div>
+
+  <div class="term">
+    <div class="term-bar">
+      <div class="dot" style="background:#ff5f57"></div>
+      <div class="dot" style="background:#febc2e"></div>
+      <div class="dot" style="background:#28c840"></div>
+      <span style="color:#666;font-size:12px;margin-left:8px;font-family:var(--font-mono)">scout 0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0</span>
+    </div>
+    <div class="term-body">
+
+      <div class="section visible" id="s-fingerprint">
+        <div class="muted">Resolving 0x7f39...2Ca0 on mainnet...</div>
+        <div class="grn">✓ Source verified on Etherscan</div>
+        <div class="grn">✓ ABI parsed — 18 functions · 6 events</div>
+        <div class="grn">✓ Proxy detected — resolving implementation...</div>
+        <div style="margin-top:14px">
+          <span class="wht">wstETH</span>
+          <span class="badge badge-blu">ERC-20</span>
+          <span class="badge badge-blu">ERC-2612</span>
+          <span class="badge badge-yel">Upgradeable</span>
+          <span class="badge badge-grn">Verified</span>
+        </div>
+        <div class="muted" style="margin-top:4px">Wrapped liquid staking token · Lido Protocol</div>
+        <hr class="divider">
+        <div class="label">identity</div>
+        <div><span class="muted">address    </span><span class="cyn">0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0</span></div>
+        <div><span class="muted">network    </span><span class="wht">Ethereum mainnet</span> <span class="muted">(chain 1)</span></div>
+        <div><span class="muted">compiler   </span><span class="wht">Solidity 0.8.9</span></div>
+        <div><span class="muted">license    </span><span class="wht">GPL-3.0</span></div>
+        <div><span class="muted">deployed   </span><span class="wht">block 13,475,304</span> <span class="muted">(Nov 2021)</span></div>
+        <div><span class="muted">balance    </span><span class="grn">0 ETH</span> <span class="muted">· total supply 3,421,804 wstETH</span></div>
+      </div>
+
+      <div class="section" id="s-proxy">
+        <div class="label">proxy analysis</div>
+        <div><span class="grn">✓ Proxy detected</span> <span class="muted">— EIP-1967 Transparent Upgradeable Proxy</span></div>
+        <div style="margin-top:10px">
+          <span class="muted">pattern      </span><span class="yel">Transparent Upgradeable (OpenZeppelin)</span>
+        </div>
+        <div><span class="muted">proxy        </span><span class="cyn">0x7f39...2Ca0</span> <span class="muted">(this contract)</span></div>
+        <div><span class="muted">impl slot    </span><span class="dim">0x360894a13ba1a3...→</span> <span class="cyn">0x3e66...a2f1</span></div>
+        <div><span class="muted">admin slot   </span><span class="dim">0xb531...→</span> <span class="cyn">0xab23...4f22</span> <span class="muted">(Lido Multisig)</span></div>
+        <hr class="divider">
+        <div class="label">upgrade history</div>
+        <div><span class="grn">current </span><span class="muted">0x3e66...a2f1</span><span class="muted"> · WstETH v2 · block 18,420,001 </span><span class="yel">(42d ago)</span></div>
+        <div><span class="dim">prev    </span><span class="muted">0x1a4c...cc03 · WstETH v1 · block 15,100,200</span></div>
+        <hr class="divider">
+        <div class="label">patterns checked</div>
+        <div><span class="grn">✓</span> EIP-1967 Transparent <span class="badge badge-grn">match</span></div>
+        <div><span class="muted">○</span> UUPS (EIP-1822) <span class="dim">— no</span></div>
+        <div><span class="muted">○</span> Diamond (EIP-2535) <span class="dim">— no</span></div>
+        <div><span class="muted">○</span> Beacon Proxy <span class="dim">— no</span></div>
+        <div><span class="muted">○</span> Minimal Proxy (EIP-1167) <span class="dim">— no</span></div>
+        <hr class="divider">
+        <div><span class="yel">⚠</span><span class="muted"> admin can upgrade without timelock</span></div>
+      </div>
+
+      <div class="section" id="s-inheritance">
+        <div class="label">inheritance tree</div>
+        <div class="wht">WstETH <span class="muted">(implementation)</span></div>
+        <div class="tree-line">└── ERC20Permit</div>
+        <div class="tree-child">└── ERC20</div>
+        <div class="tree-grand">├── IERC20</div>
+        <div class="tree-grand">└── Context</div>
+        <div class="tree-line">└── IERC20Permit</div>
+        <div class="tree-line">└── Ownable</div>
+        <hr class="divider">
+        <div class="label">standards detected</div>
+        <div><span class="grn">✓</span> ERC-20 <span class="muted">— transfer, approve, allowance, balanceOf, totalSupply</span></div>
+        <div><span class="grn">✓</span> ERC-2612 <span class="muted">— permit() gasless approvals</span></div>
+        <div><span class="grn">✓</span> Ownable <span class="muted">— owner: 0xab23...4f22</span></div>
+        <div><span class="muted">○</span> ERC-721 <span class="dim">— no</span></div>
+        <div><span class="muted">○</span> ERC-4626 <span class="dim">— no</span></div>
+        <div><span class="muted">○</span> ERC-4337 <span class="dim">— no</span></div>
+        <div><span class="muted">○</span> Pausable <span class="dim">— no</span></div>
+        <hr class="divider">
+        <div class="label">parent contracts</div>
+        <div><span class="muted">direct parent   </span><span class="cyn">ERC20Permit</span> <span class="muted">· OpenZeppelin 4.7.3</span></div>
+        <div><span class="muted">grandparent     </span><span class="cyn">ERC20</span> <span class="muted">· OpenZeppelin 4.7.3</span></div>
+        <div><span class="muted">lib version     </span><span class="grn">✓ matches known OZ bytecode</span></div>
+      </div>
+
+      <div class="section" id="s-security">
+        <div class="label">security surface</div>
+        <div><span class="yel">⚠</span> Upgradeable <span class="muted">— admin: 0xab23...4f22 (Lido Multisig 5/9)</span></div>
+        <div><span class="yel">⚠</span> No timelock on upgrade functions</div>
+        <div><span class="grn">✓</span> No selfdestruct detected</div>
+        <div><span class="grn">✓</span> No tx.origin usage</div>
+        <div><span class="grn">✓</span> No delegatecall in implementation</div>
+        <div><span class="grn">✓</span> Reentrancy guards present <span class="muted">(4/4 external calls)</span></div>
+        <hr class="divider">
+        <div class="label">access control</div>
+        <div><span class="muted">owner            </span><span class="cyn">0xab23...4f22</span> <span class="muted">Multisig</span></div>
+        <div><span class="muted">privileged fns   </span><span class="wht">3</span> <span class="muted">— setStETH, pause, upgradeTo</span></div>
+        <div><span class="muted">unprotected fns  </span><span class="grn">0</span></div>
+        <hr class="divider">
+        <div class="label">last activity</div>
+        <div><span class="muted">last tx     </span><span class="wht">2 minutes ago</span> <span class="muted">· block 19,842,001</span></div>
+        <div><span class="muted">upgrade     </span><span class="yel">42 days ago</span> <span class="muted">· block 18,420,001</span></div>
+      </div>
+
+      <div class="section" id="s-menu">
+        <div class="muted" style="margin-bottom:12px">Contract loaded. What do you want to do?</div>
+        <div><span class="grn">❯</span> <span class="wht">read state</span> <span class="muted">— call any view function interactively</span></div>
+        <div><span class="dim">  </span> <span class="muted">watch events</span> <span class="dim">— stream live events to terminal</span></div>
+        <div><span class="dim">  </span> <span class="muted">inspect storage</span> <span class="dim">— read any slot by name or index</span></div>
+        <div><span class="dim">  </span> <span class="muted">export foundry</span> <span class="dim">— generate .t.sol with fork configured</span></div>
+        <div><span class="dim">  </span> <span class="muted">export abi</span> <span class="dim">— save ABI as JSON</span></div>
+        <div><span class="dim">  </span> <span class="muted">open etherscan</span> <span class="dim">— launch in browser</span></div>
+        <hr class="divider">
+        <div><span class="prompt">scout</span> <span class="dim">›</span> <span class="cursor"></span></div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+function show(id, btn) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('visible'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('s-' + id).classList.add('visible');
+  btn.classList.add('active');
+}
+</script>
