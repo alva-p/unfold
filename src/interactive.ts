@@ -93,9 +93,9 @@ async function runAction(
   extra: string,
   rpc?: string
 ): Promise<void> {
-  console.log()
+  console.clear()
   switch (action) {
-    case 'inspect':        return runInspect(address, chain, config, rpc)
+    case 'inspect':        return runInspect(address, chain, config, rpc, false, false)
     case 'proxy':          return runProxy(address, chain, config, rpc)
     case 'tree':           return runTree(address, chain, config)
     case 'security':       return runSecurity(address, chain, config, rpc)

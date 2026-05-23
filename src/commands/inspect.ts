@@ -30,7 +30,8 @@ export async function runInspect(
   chainName: string,
   config: Config,
   rpcOverride?: string,
-  jsonOutput = false
+  jsonOutput = false,
+  startLoop = true
 ): Promise<void> {
   let address: string
   try {
@@ -148,8 +149,10 @@ export async function runInspect(
 
     printFingerprint(contract, proxy, standards, chainConfig.name, balance, totalSupply)
 
-    const { runInteractiveLoop } = await import('../interactive.js')
-    await runInteractiveLoop(address, chainName, config, rpcOverride)
+    if (startLoop) {
+      const { runInteractiveLoop } = await import('../interactive.js')
+      await runInteractiveLoop(address, chainName, config, rpcOverride)
+    }
   } catch (err) {
     process.stdout.write('\x1B[1A\x1B[2K')
     const msg = err instanceof Error ? err.message : String(err)
